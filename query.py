@@ -42,3 +42,7 @@ def validate_search_inputs(city_raw: str, category_raw: str) -> dict[str, str]:
         errors["category"] = "Enter a category before searching."
 
     return errors
+
+
+def can_submit_search(city_raw: str, category_raw: str) -> bool:
+    return not validate_search_inputs(city_raw, category_raw)
