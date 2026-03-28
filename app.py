@@ -3,6 +3,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
+from ranking import rank_places, serialize_ranking_result
 from query import build_search_query, can_submit_search, normalize_text_input, validate_search_inputs
 from retrieval import retrieve_places, serialize_retrieval_result
 
@@ -16,6 +17,7 @@ CATEGORY_PLACEHOLDER = "Kebabai, Museums, Cafes"
 SEARCH_CTA_LABEL = "Search places"
 QUERY_STATE_KEY = "search_query"
 RETRIEVAL_STATE_KEY = "retrieval_result"
+RANKING_STATE_KEY = "ranking_result"
 CITY_TOUCHED_KEY = "city_touched"
 CATEGORY_TOUCHED_KEY = "category_touched"
 
@@ -149,7 +151,9 @@ if search_clicked:
     else:
         search_query = build_search_query(city, category, radius_km)
         st.session_state[QUERY_STATE_KEY] = search_query
-        st.session_state[RETRIEVAL_STATE_KEY] = retrieve_places(search_query, api_key=api_key)
+        retrieval_result = retrieve_places(search_query, api_key=api_key)
+        st.session_state[RETRIEVAL_STATE_KEY] = retrieval_result
+        st.session_state[RANKING_STATE_KEY] = rank_places(retrieval_result.places)
 
 if QUERY_STATE_KEY in st.session_state:
     search_query = st.session_state[QUERY_STATE_KEY]
@@ -172,3 +176,8 @@ if RETRIEVAL_STATE_KEY in st.session_state:
 
     st.subheader("Phase 2 Retrieval Envelope")
     st.json(serialize_retrieval_result(retrieval_result))
+
+if RANKING_STATE_KEY in st.session_state:
+    ranking_result = st.session_state[RANKING_STATE_KEY]
+    st.subheader("Phase 3 Ranking Envelope")
+    st.json(serialize_ranking_result(ranking_result))
