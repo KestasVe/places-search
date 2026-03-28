@@ -12,12 +12,12 @@ Turn messy Google Maps browsing into a reliable ranked list where highly rated p
 
 ### Validated
 
-(None yet - ship to validate)
+- [x] User can enter a Lithuanian city search as free text and submit a normalized query shell - Phase 1
+- [x] User can enter a freeform category/query term and have it validated before search execution - Phase 1
+- [x] User can set a search radius and hand off a stable query object with kilometer and meter values - Phase 1
 
 ### Active
 
-- [ ] User can search for a place category within a selected Lithuanian city.
-- [ ] User can provide a search radius for the query.
 - [ ] App fetches live Google Places results, including pagination where needed.
 - [ ] App deduplicates fetched places before ranking them.
 - [ ] App ranks places using a Bayesian weighted score based on Google rating and review count.
@@ -49,6 +49,7 @@ Turn messy Google Maps browsing into a reliable ranked list where highly rated p
 - The application is expected to work across arbitrary city/category combinations as long as Google Places returns results.
 - Streamlit is the intended framework, with `st.map` suitable for the initial map view.
 - Deployment target is Streamlit Cloud, which implies clean dependency management, ignored local secrets, and environment-based API configuration.
+- Current state: Phase 1 is complete, and the app now provides a validated search shell plus a normalized `SearchQuery` handoff for later retrieval and ranking phases.
 
 ## Constraints
 
@@ -66,9 +67,9 @@ Turn messy Google Maps browsing into a reliable ranked list where highly rated p
 |----------|-----------|---------|
 | Use Streamlit for the web app | Fastest path to a usable public-facing tool with built-in table and map support | - Pending |
 | Optimize ranking with a Bayesian weighted score | Avoids naive "5.0 with 2 reviews" results outranking well-established places | - Pending |
-| Prioritize city/category search in v1 | Matches the most concrete and useful user workflow | - Pending |
+| Prioritize city/category search in v1 | Matches the most concrete and useful user workflow | ✓ Good |
 | Use live Google Places queries with session caching | Keeps data fresh while avoiding unnecessary repeated API calls | - Pending |
-| Prepare the repo for Streamlit Cloud deployment from the start | Prevents rework around secrets and packaging later | - Pending |
+| Prepare the repo for Streamlit Cloud deployment from the start | Prevents rework around secrets and packaging later | ✓ Good |
 
 ## Evolution
 
@@ -88,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-28 after initialization*
+*Last updated: 2026-03-28 after Phase 1 completion*
