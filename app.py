@@ -4,6 +4,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from query import build_search_query, can_submit_search, normalize_text_input, validate_search_inputs
+from retrieval import retrieve_places, serialize_retrieval_result
 
 
 load_dotenv()
@@ -14,6 +15,7 @@ CITY_HELP = "Lithuanian and English city names are both acceptable."
 CATEGORY_PLACEHOLDER = "Kebabai, Museums, Cafes"
 SEARCH_CTA_LABEL = "Search places"
 QUERY_STATE_KEY = "search_query"
+RETRIEVAL_STATE_KEY = "retrieval_result"
 CITY_TOUCHED_KEY = "city_touched"
 CATEGORY_TOUCHED_KEY = "category_touched"
 
@@ -145,11 +147,13 @@ if search_clicked:
         render_inline_error("city", current_errors.get("city", ""))
         render_inline_error("category", current_errors.get("category", ""))
     else:
-        st.session_state[QUERY_STATE_KEY] = build_search_query(city, category, radius_km)
+        search_query = build_search_query(city, category, radius_km)
+        st.session_state[QUERY_STATE_KEY] = search_query
+        st.session_state[RETRIEVAL_STATE_KEY] = retrieve_places(search_query, api_key=api_key)
 
 if QUERY_STATE_KEY in st.session_state:
     search_query = st.session_state[QUERY_STATE_KEY]
-    st.success("Phase 1 query captured. Results arrive in later phases.")
+    st.success("Search query captured and sent through the Phase 2 retrieval pipeline.")
     st.json(
         {
             "city_raw": search_query.city_raw,
@@ -160,3 +164,11 @@ if QUERY_STATE_KEY in st.session_state:
             "radius_m": search_query.radius_m,
         }
     )
+
+if RETRIEVAL_STATE_KEY in st.session_state:
+    retrieval_result = st.session_state[RETRIEVAL_STATE_KEY]
+    if retrieval_result.error:
+        st.error(retrieval_result.error.message)
+
+    st.subheader("Phase 2 Retrieval Envelope")
+    st.json(serialize_retrieval_result(retrieval_result))
