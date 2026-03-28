@@ -90,6 +90,8 @@ def retrieve_places(
         if not page_token:
             break
 
+    print(f"[debug] Google raw results before radius filter: {len(raw_places)}")
+
     normalized_places = [normalize_place_payload(raw_place) for raw_place in raw_places]
     normalized_places = filter_operational_places(normalized_places)
     normalized_places = filter_places_within_radius(

@@ -203,7 +203,7 @@ st.markdown(
     """
     <div class="phase-shell">
         <h2>Find the strongest places fast</h2>
-        <p>Search by city, category, and radius to see a Bayesian-ranked table and map without manual Google Maps triage.</p>
+        <p>Search by city, keyword, and radius to see a Bayesian-ranked table and map without manual Google Maps triage.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -219,7 +219,7 @@ with st.container():
         st.session_state[CITY_TOUCHED_KEY] = True
 
     category = st.text_input(
-        "Category",
+        "Keyword",
         placeholder=CATEGORY_PLACEHOLDER,
         key="category_input",
         on_change=mark_category_touched,
