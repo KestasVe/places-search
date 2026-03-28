@@ -5,7 +5,15 @@ from dotenv import load_dotenv
 
 from ranking import rank_places, serialize_ranking_result
 from query import build_search_query, can_submit_search, normalize_text_input, validate_search_inputs
+from results_view import build_map_points_frame, build_ranked_results_frame, build_unranked_results_frame
 from retrieval import retrieve_places, serialize_retrieval_result
+
+try:
+    import folium
+    from streamlit_folium import st_folium
+except ImportError:  # pragma: no cover - runtime fallback for local environments without Phase 4 deps
+    folium = None
+    st_folium = None
 
 
 load_dotenv()
@@ -15,6 +23,7 @@ PAGE_CAPTION = "Find and rank the best places in Lithuania with Google Places da
 CITY_HELP = "Lithuanian and English city names are both acceptable."
 CATEGORY_PLACEHOLDER = "Kebabai, Museums, Cafes"
 SEARCH_CTA_LABEL = "Search places"
+RESULTS_LIMIT = 20
 QUERY_STATE_KEY = "search_query"
 RETRIEVAL_STATE_KEY = "retrieval_result"
 RANKING_STATE_KEY = "ranking_result"
@@ -43,6 +52,93 @@ def render_inline_error(field_key: str, message: str) -> None:
         st.error(message)
     if field_key == "category" and st.session_state.get(CATEGORY_TOUCHED_KEY):
         st.error(message)
+
+
+@st.cache_data(show_spinner=False)
+def run_search_pipeline(search_query, api_key: str):
+    retrieval_result = retrieve_places(search_query, api_key=api_key)
+    ranking_result = rank_places(retrieval_result.places)
+    return retrieval_result, ranking_result
+
+
+def render_result_metrics(ranking_result) -> None:
+    metric_one, metric_two, metric_three = st.columns(3)
+    with metric_one:
+        st.metric("Ranked places", ranking_result.metadata.ranked_count)
+    with metric_two:
+        st.metric("Unranked kept", ranking_result.metadata.unranked_count)
+    with metric_three:
+        st.metric("Bayesian baseline", f"{ranking_result.metadata.mean_rating:.1f}")
+
+
+def render_results_table(ranking_result) -> None:
+    ranked_frame = build_ranked_results_frame(ranking_result.places, limit=RESULTS_LIMIT)
+    if ranked_frame.empty:
+        st.info("No ranked places were available for this search.")
+    else:
+        st.subheader("Top ranked places")
+        st.dataframe(ranked_frame, use_container_width=True, hide_index=True)
+
+    unranked_frame = build_unranked_results_frame(ranking_result.places)
+    if not unranked_frame.empty:
+        with st.expander(f"Show unranked places ({len(unranked_frame)})"):
+            st.dataframe(unranked_frame, use_container_width=True, hide_index=True)
+
+
+def render_results_map(ranking_result, retrieval_result) -> None:
+    map_points = build_map_points_frame(ranking_result.places, limit=RESULTS_LIMIT)
+    st.subheader("Map")
+
+    if map_points.empty:
+        st.info("No ranked places with coordinates are available to plot on the map.")
+        return
+
+    if folium is None or st_folium is None:
+        st.warning("Install `folium` and `streamlit-folium` to enable the interactive map view.")
+        st.map(map_points.rename(columns={"lat": "latitude", "lng": "longitude"})[["latitude", "longitude"]])
+        return
+
+    center_lat = retrieval_result.metadata.center_lat if retrieval_result.metadata else map_points.iloc[0]["lat"]
+    center_lng = retrieval_result.metadata.center_lng if retrieval_result.metadata else map_points.iloc[0]["lng"]
+    results_map = folium.Map(location=[center_lat, center_lng], zoom_start=12, tiles="CartoDB positron")
+
+    for point in map_points.to_dict("records"):
+        popup_html = (
+            f"<strong>#{point['rank']} {point['name']}</strong><br>"
+            f"Score: {point['score']}<br>"
+            f"Rating: {point['rating']} ({point['reviews']} reviews)<br>"
+            f"{point['address']}"
+        )
+        folium.Marker(
+            location=[point["lat"], point["lng"]],
+            popup=popup_html,
+            tooltip=f"#{point['rank']} {point['name']}",
+        ).add_to(results_map)
+
+    st_folium(results_map, use_container_width=True, height=520)
+
+
+def render_feedback_states(retrieval_result, ranking_result) -> bool:
+    if retrieval_result.error:
+        st.error(retrieval_result.error.message)
+        return False
+
+    if retrieval_result.metadata:
+        for warning in retrieval_result.metadata.warnings:
+            st.warning(warning)
+
+    if not retrieval_result.places:
+        resolved_label = (
+            retrieval_result.metadata.resolved_city_address
+            if retrieval_result.metadata and retrieval_result.metadata.resolved_city_address
+            else "the selected location"
+        )
+        st.info(f"No places matched this search near {resolved_label}.")
+        return False
+
+    if ranking_result.metadata.ranked_count == 0:
+        st.info("Places were found, but none had enough rating data to be ranked.")
+    return True
 
 
 st.set_page_config(page_title=PAGE_TITLE, layout="wide")
@@ -94,15 +190,14 @@ st.caption(PAGE_CAPTION)
 
 if not api_key:
     st.warning(
-        "Set `GOOGLE_PLACES_API_KEY` in Streamlit secrets or environment variables "
-        "before implementing live searches."
+        "Set `GOOGLE_PLACES_API_KEY` in Streamlit secrets or environment variables before running live searches."
     )
 
 st.markdown(
     """
     <div class="phase-shell">
-        <h2>Ready to search Lithuania</h2>
-        <p>Enter a city, category, and radius to prepare a ranked search query. Results appear in later phases.</p>
+        <h2>Find the strongest places fast</h2>
+        <p>Search by city, category, and radius to see a Bayesian-ranked table and map without manual Google Maps triage.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -151,33 +246,38 @@ if search_clicked:
     else:
         search_query = build_search_query(city, category, radius_km)
         st.session_state[QUERY_STATE_KEY] = search_query
-        retrieval_result = retrieve_places(search_query, api_key=api_key)
-        st.session_state[RETRIEVAL_STATE_KEY] = retrieval_result
-        st.session_state[RANKING_STATE_KEY] = rank_places(retrieval_result.places)
+        if not api_key:
+            st.session_state[RETRIEVAL_STATE_KEY] = None
+            st.session_state[RANKING_STATE_KEY] = None
+            st.error("A Google Places API key is required before searches can run.")
+        else:
+            with st.spinner("Fetching Google Places results and ranking them..."):
+                retrieval_result, ranking_result = run_search_pipeline(search_query, api_key)
+            st.session_state[RETRIEVAL_STATE_KEY] = retrieval_result
+            st.session_state[RANKING_STATE_KEY] = ranking_result
 
 if QUERY_STATE_KEY in st.session_state:
     search_query = st.session_state[QUERY_STATE_KEY]
-    st.success("Search query captured and sent through the Phase 2 retrieval pipeline.")
-    st.json(
-        {
-            "city_raw": search_query.city_raw,
-            "city_normalized": search_query.city_normalized,
-            "category_raw": search_query.category_raw,
-            "category_normalized": search_query.category_normalized,
-            "radius_km": search_query.radius_km,
-            "radius_m": search_query.radius_m,
-        }
+    st.success(
+        f"Showing results for {search_query.category_raw} near {search_query.city_raw} within {search_query.radius_km} km."
     )
 
-if RETRIEVAL_STATE_KEY in st.session_state:
+if RETRIEVAL_STATE_KEY in st.session_state and st.session_state[RETRIEVAL_STATE_KEY] is not None:
     retrieval_result = st.session_state[RETRIEVAL_STATE_KEY]
-    if retrieval_result.error:
-        st.error(retrieval_result.error.message)
+    ranking_result = st.session_state.get(RANKING_STATE_KEY)
+    if ranking_result is not None:
+        should_render_results = render_feedback_states(retrieval_result, ranking_result)
+        render_result_metrics(ranking_result)
 
-    st.subheader("Phase 2 Retrieval Envelope")
-    st.json(serialize_retrieval_result(retrieval_result))
+        if should_render_results:
+            results_column, map_column = st.columns([1.15, 1], gap="large")
+            with results_column:
+                render_results_table(ranking_result)
+            with map_column:
+                render_results_map(ranking_result, retrieval_result)
 
-if RANKING_STATE_KEY in st.session_state:
-    ranking_result = st.session_state[RANKING_STATE_KEY]
-    st.subheader("Phase 3 Ranking Envelope")
-    st.json(serialize_ranking_result(ranking_result))
+        with st.expander("Debug envelopes"):
+            st.caption("Phase 2 retrieval")
+            st.json(serialize_retrieval_result(retrieval_result))
+            st.caption("Phase 3 ranking")
+            st.json(serialize_ranking_result(ranking_result))
