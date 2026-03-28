@@ -17,6 +17,7 @@ class NormalizedPlace:
     business_status: str | None = None
     price_level: int | None = None
     opening_hours: bool | None = None
+    distance_m: float | None = None
 
 
 @dataclass(frozen=True)

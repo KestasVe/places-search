@@ -1,7 +1,9 @@
 from retrieval_models import RetrievalError, RetrievalMetadata, RetrievalResult
 from retrieval_normalization import (
+    calculate_haversine_distance_m,
     deduplicate_places,
     filter_operational_places,
+    filter_places_within_radius,
     normalize_place_payload,
 )
 
@@ -118,3 +120,34 @@ def test_retrieval_models_can_be_instantiated_with_agreed_fields() -> None:
     assert result.metadata is metadata
     assert result.error is error
     assert result.places == []
+
+
+def test_filter_places_within_radius_keeps_only_places_inside_requested_distance() -> None:
+    nearby_place = normalize_place_payload(
+        {
+            "place_id": "nearby",
+            "name": "Nearby Place",
+            "formatted_address": "Near Street",
+            "geometry": {"location": {"lat": 54.6877, "lng": 25.2802}},
+            "business_status": "OPERATIONAL",
+        }
+    )
+    far_place = normalize_place_payload(
+        {
+            "place_id": "far",
+            "name": "Far Place",
+            "formatted_address": "Far Street",
+            "geometry": {"location": {"lat": 54.7400, "lng": 25.1800}},
+            "business_status": "OPERATIONAL",
+        }
+    )
+
+    filtered = filter_places_within_radius([nearby_place, far_place], 54.6872, 25.2797, 3000)
+
+    assert [place.place_id for place in filtered] == ["nearby"]
+    assert filtered[0].distance_m is not None
+    assert filtered[0].distance_m <= 3000
+
+
+def test_calculate_haversine_distance_returns_zero_for_same_point() -> None:
+    assert calculate_haversine_distance_m(54.6872, 25.2797, 54.6872, 25.2797) == 0.0

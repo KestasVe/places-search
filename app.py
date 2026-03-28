@@ -108,6 +108,7 @@ def render_results_map(ranking_result, retrieval_result) -> None:
             f"<strong>#{point['rank']} {point['name']}</strong><br>"
             f"Score: {point['score']}<br>"
             f"Rating: {point['rating']} ({point['reviews']} reviews)<br>"
+            f"Distance: {point['distance']}<br>"
             f"{point['address']}"
         )
         folium.Marker(

@@ -24,6 +24,7 @@ class RankedPlace:
     business_status: str | None = None
     price_level: int | None = None
     opening_hours: bool | None = None
+    distance_m: float | None = None
     score: float | None = None
     is_ranked: bool = False
     rank_order: int | None = None
@@ -72,6 +73,7 @@ def _to_ranked_place(
         formatted_address=place.formatted_address,
         lat=place.lat,
         lng=place.lng,
+        distance_m=place.distance_m,
         rating=place.rating,
         user_ratings_total=place.user_ratings_total,
         types=list(place.types),

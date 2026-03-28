@@ -7,7 +7,12 @@ from geocoding import GeocodingResolution, geocode_city
 from places_client import search_text_places
 from query import SearchQuery
 from retrieval_models import RetrievalError, RetrievalMetadata, RetrievalResult
-from retrieval_normalization import deduplicate_places, filter_operational_places, normalize_place_payload
+from retrieval_normalization import (
+    deduplicate_places,
+    filter_operational_places,
+    filter_places_within_radius,
+    normalize_place_payload,
+)
 
 
 MAX_PLACES_PAGES = 3
@@ -87,6 +92,12 @@ def retrieve_places(
 
     normalized_places = [normalize_place_payload(raw_place) for raw_place in raw_places]
     normalized_places = filter_operational_places(normalized_places)
+    normalized_places = filter_places_within_radius(
+        normalized_places,
+        resolution.lat,
+        resolution.lng,
+        search_query.radius_m,
+    )
     normalized_places = deduplicate_places(normalized_places)
 
     metadata = _build_metadata(search_query, resolution, warnings)

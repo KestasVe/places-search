@@ -21,12 +21,14 @@ def _raw_place(
     user_ratings_total: int | None = 100,
     business_status: str = "OPERATIONAL",
     price_level: int | None = 2,
+    lat: float = 54.6880,
+    lng: float = 25.2805,
 ) -> dict[str, object]:
     payload: dict[str, object] = {
         "place_id": place_id,
         "name": f"Place {place_id}",
         "formatted_address": f"{place_id} Street",
-        "geometry": {"location": {"lat": 54.0, "lng": 25.0}},
+        "geometry": {"location": {"lat": lat, "lng": lng}},
         "business_status": business_status,
         "types": ["restaurant"],
         "price_level": price_level,

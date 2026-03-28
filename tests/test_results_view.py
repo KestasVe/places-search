@@ -4,6 +4,7 @@ from results_view import (
     build_map_points_frame,
     build_ranked_results_frame,
     build_unranked_results_frame,
+    format_distance_km,
     format_open_now,
     format_price_level,
 )
@@ -21,6 +22,7 @@ def _ranked_place(
     opening_hours: bool | None = True,
     lat: float | None = 54.6872,
     lng: float | None = 25.2797,
+    distance_m: float | None = 850,
 ) -> RankedPlace:
     return RankedPlace(
         place_id=place_id,
@@ -28,6 +30,7 @@ def _ranked_place(
         formatted_address=f"{place_id} Street",
         lat=lat,
         lng=lng,
+        distance_m=distance_m,
         rating=rating,
         user_ratings_total=reviews,
         types=["restaurant"],
@@ -43,6 +46,7 @@ def _ranked_place(
 def test_format_helpers_return_human_readable_values() -> None:
     assert format_price_level(None) == "-"
     assert format_price_level(3) == "$$$"
+    assert format_distance_km(850) == "0.85 km"
     assert format_open_now(True) == "Open"
     assert format_open_now(False) == "Closed"
     assert format_open_now(None) == "Unknown"
@@ -58,8 +62,19 @@ def test_build_ranked_results_frame_limits_to_top_20_ranked_rows() -> None:
     frame = build_ranked_results_frame(places)
 
     assert len(frame) == TOP_RANKED_LIMIT
-    assert list(frame.columns) == ["Rank", "Name", "Score", "Rating", "Reviews", "Address", "Price", "Open Now"]
+    assert list(frame.columns) == [
+        "Rank",
+        "Name",
+        "Score",
+        "Rating",
+        "Reviews",
+        "Distance",
+        "Address",
+        "Price",
+        "Open Now",
+    ]
     assert frame.iloc[0]["Rank"] == 1
+    assert frame.iloc[0]["Distance"] == "0.85 km"
     assert frame.iloc[-1]["Rank"] == TOP_RANKED_LIMIT
 
 
@@ -77,3 +92,4 @@ def test_build_unranked_and_map_frames_filter_expected_rows() -> None:
     assert unranked_frame.iloc[0]["Rank"] == "-"
     assert len(map_frame) == 1
     assert map_frame.iloc[0]["rank"] == 1
+    assert map_frame.iloc[0]["distance"] == "0.85 km"

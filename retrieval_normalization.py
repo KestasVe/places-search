@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import math
+from dataclasses import replace
 from typing import Any, Iterable
 
 from retrieval_models import NormalizedPlace
+
+EARTH_RADIUS_M = 6_371_000
 
 
 def _coerce_float(value: Any) -> float | None:
@@ -46,6 +50,7 @@ def normalize_place_payload(raw_place: dict[str, Any]) -> NormalizedPlace:
         formatted_address=str(raw_place.get("formatted_address") or raw_place.get("vicinity") or ""),
         lat=_coerce_float(location.get("lat")),
         lng=_coerce_float(location.get("lng")),
+        distance_m=None,
         rating=_coerce_float(raw_place.get("rating")),
         user_ratings_total=_coerce_int(raw_place.get("user_ratings_total")),
         types=[str(item) for item in types if item is not None],
@@ -84,6 +89,44 @@ def is_operational(place: NormalizedPlace) -> bool:
 
 def filter_operational_places(places: Iterable[NormalizedPlace]) -> list[NormalizedPlace]:
     return [place for place in places if is_operational(place)]
+
+
+def calculate_haversine_distance_m(
+    origin_lat: float,
+    origin_lng: float,
+    destination_lat: float,
+    destination_lng: float,
+) -> float:
+    origin_lat_rad = math.radians(origin_lat)
+    destination_lat_rad = math.radians(destination_lat)
+    delta_lat_rad = math.radians(destination_lat - origin_lat)
+    delta_lng_rad = math.radians(destination_lng - origin_lng)
+
+    haversine_term = (
+        math.sin(delta_lat_rad / 2) ** 2
+        + math.cos(origin_lat_rad) * math.cos(destination_lat_rad) * math.sin(delta_lng_rad / 2) ** 2
+    )
+    central_angle = 2 * math.atan2(math.sqrt(haversine_term), math.sqrt(1 - haversine_term))
+    return EARTH_RADIUS_M * central_angle
+
+
+def filter_places_within_radius(
+    places: Iterable[NormalizedPlace],
+    center_lat: float,
+    center_lng: float,
+    radius_m: int,
+) -> list[NormalizedPlace]:
+    filtered_places: list[NormalizedPlace] = []
+
+    for place in places:
+        if place.lat is None or place.lng is None:
+            continue
+
+        distance_m = calculate_haversine_distance_m(center_lat, center_lng, place.lat, place.lng)
+        if distance_m <= radius_m:
+            filtered_places.append(replace(place, distance_m=distance_m))
+
+    return filtered_places
 
 
 def deduplicate_places(places: Iterable[NormalizedPlace]) -> list[NormalizedPlace]:
