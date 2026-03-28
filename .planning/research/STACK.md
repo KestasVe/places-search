@@ -2,57 +2,75 @@
 
 ## Recommended Core Stack
 
-- **Frontend/App shell**: Streamlit
+- **UI/runtime**: Streamlit
 - **Language/runtime**: Python 3.11+
-- **HTTP client**: `requests`
-- **Tabular processing**: `pandas`
-- **Config/secrets**: `st.secrets` in deployed environments, environment variables for local development
-- **Local env helper**: `python-dotenv`
+- **HTTP client**: `requests` for v1
+- **Data shaping**: `pandas`
+- **Ranking/math**: standard library + small pure-Python scoring helpers
+- **Secrets/config**: `st.secrets` for Streamlit Cloud, environment variables for local use
+- **Local env loading**: `python-dotenv`
 - **Testing**: `pytest`
-- **Linting/formatting**: `ruff`
+- **Lint/format**: `ruff`
 
-## Why This Fits
+## Why This Fits This Project
 
 ### Streamlit
 
-- Fastest path to a usable public-facing app for search, ranking, table display, and map display.
-- Streamlit Cloud is a direct deployment target, reducing infrastructure overhead for v1.
-- Built-in caching (`st.cache_data`) matches the requirement for live-on-demand queries with session-friendly reuse.
+Streamlit is the right v1 choice because the product value is search, ranking, and comparison, not bespoke frontend interaction. It gives fast iteration, built-in tabular display, and a low-friction map primitive.
 
-### requests + pandas
+### Requests + pandas
 
-- `requests` is sufficient for Google Places API calls in v1 without introducing async or client complexity too early.
-- `pandas` is a good fit for deduplication, score calculation, ranking, and dataframe display.
+The API surface is simple enough that a general HTTP client is sufficient. `pandas` is useful for shaping results into a table and sorting by score without introducing database or ORM complexity.
 
-### st.secrets + environment variables
+### Small custom scoring module
 
-- Keeps the Google API key out of source control.
-- Works cleanly across local development and Streamlit Cloud deployment.
+The ranking logic is the differentiator, so it should live in an isolated scoring module rather than being embedded in UI code or dataframe transformations. That keeps Bayesian scoring testable and makes later factors like price or distance additive rather than invasive.
 
-## Suggested Project Structure
+### Secrets via `st.secrets` and env vars
 
-- `app.py` - Streamlit entry point
-- `src/places_client.py` - Google Places API fetching and pagination
-- `src/ranking.py` - Bayesian scoring and sorting logic
-- `src/transform.py` - normalization and deduplication helpers
-- `src/ui.py` or `src/view_models.py` - presentation helpers for table/map shaping
-- `tests/` - unit tests for ranking and data transformation
+This matches the deployment target directly. Streamlit Cloud prefers `st.secrets`, while local development benefits from `.env` and environment variables. Supporting both avoids branching deployment logic later.
 
-## Deployment Notes
+## Recommended Project Structure
 
-- Keep dependencies minimal to avoid slow Streamlit Cloud cold starts.
-- Expect Google API quotas and billing to matter earlier than app hosting cost.
-- Prefer small, deterministic caching keys based on city/category/radius inputs.
+```text
+app.py
+src/
+  clients/google_places.py
+  ranking/bayesian.py
+  services/search.py
+  models/place.py
+tests/
+```
 
-## Testing and Tooling Guidance
+- Keep `app.py` thin and UI-focused.
+- Put API calls behind a client module.
+- Put ranking math in a separate module with pure functions.
+- Put deduplication and result orchestration in a service layer.
 
-- Unit-test Bayesian score behavior, especially low-review edge cases.
-- Unit-test pagination and duplicate handling with mocked API responses.
-- Add lightweight smoke coverage for the app entry point once the core modules exist.
+## Deployment Considerations
+
+- Pin dependencies in `requirements.txt` once the first implementation pass stabilizes.
+- Keep secrets out of git and load them only from environment or Streamlit secrets.
+- Prefer lightweight session/data caching over persistent infrastructure.
+- Handle API quota failures and empty-result responses visibly in the UI.
+
+## Testing And Tooling Suggestions
+
+- Unit test Bayesian scoring separately from UI.
+- Unit test deduplication and result normalization with fixture payloads.
+- Add small integration tests around the search orchestration layer with mocked Google API responses.
+- Use `ruff` for both linting and formatting where possible to keep tooling minimal.
+
+## Tradeoffs
+
+- **Streamlit** is fast to ship but less flexible if the product later needs a richer public UX.
+- **`requests`** is sufficient now; switching to `httpx` only matters if async or more advanced client behavior becomes necessary.
+- **No database** keeps v1 lean but means no historical comparisons, scheduled refreshes, or persistent analytics yet.
 
 ## Avoid In V1
 
-- Premature database integration
-- Async/concurrent fetch complexity unless API limits force it
-- Heavy geospatial packages when simple latitude/longitude handling is enough
-- Over-engineered deployment layers beyond Streamlit Cloud
+- ORMs or persistence layers
+- Background jobs or country-wide scraping
+- Custom frontend frameworks
+- Premature async complexity
+- Overly generic ranking configuration before the core score is proven

@@ -1,57 +1,56 @@
-# Features Research
+# Feature Research
 
-## V1 Table-Stakes
+## Table Stakes For V1
 
 ### Search Inputs
 
 - Select a Lithuanian city
-- Enter a freeform category/query term
-- Set search radius
-- Submit and rerun searches clearly
+- Enter a freeform category or place type query
+- Set a search radius
 
-### Results Quality
+### Search Execution
 
-- Fetch more than the first page of Google Places results
-- Normalize and deduplicate returned places
-- Rank results with a transparent Bayesian weighted score
-- Show rating and review count alongside rank so users can trust the outcome
+- Call Google Places with live data
+- Handle pagination when a query spans multiple pages
+- Normalize and deduplicate repeated places
+- Show empty and error states clearly
 
-### Results Presentation
+### Ranking Output
 
-- Ranked table/dataframe of results
-- Map view of the ranked set
-- Clear handling for no-results and partial-results cases
+- Calculate Bayesian weighted score from rating and review count
+- Sort places by weighted score
+- Show enough columns for trust: name, rating, reviews, score, address
+- Limit the default display to a top-ranked slice while keeping full result visibility possible
 
-### Operational Basics
+### Visualization
 
-- Secrets-based API configuration
-- Session caching for repeated identical searches
-- Public-deployment-friendly packaging and repo hygiene
+- Render a ranked table
+- Render matching places on a map
+- Keep the table and map tied to the same result set
 
-## Strong V1 Additions If Cheap
+### Cost And Reliability
 
-- Short explanation of how the score works
-- User-selectable sort toggle between Bayesian score, raw rating, and review count
-- Basic loading/error states around API calls
+- Cache identical searches during a session
+- Avoid duplicate API calls caused by Streamlit reruns
 
-## Good V2 Candidates
+## Good V1 Additions If Cheap
 
-- Additional ranking factors such as distance, price level, or open-now
-- City aggregation across multiple Lithuanian locations
-- Saved result snapshots or export
-- Place detail drill-down
-- Favorites/bookmarks
+- Score explanation text so users understand why 4.8/500 beats 5.0/2
+- Simple loading/progress state for multi-page fetches
+- Sort toggle between weighted score, raw rating, and review count for comparison
 
-## Explicitly Deferred
+## Defer To V2
 
+- Saved searches or favorites
+- Place detail pages
+- Persistent storage
+- Precomputed Lithuania-wide rankings
 - User accounts
-- Permanent database storage
 - Multilingual UI
-- Background nationwide scraping/precomputation
-- Mobile-specific custom UX
+- Advanced filters such as price, open now, distance weighting, or business status ranking
 
-## Scope Guidance
+## Feature Boundaries That Protect The Core Value
 
-- The differentiator is ranking quality, not breadth of platform features.
-- V1 should optimize for "search -> fetch -> rank -> inspect on map" with as little extra product surface area as possible.
-- If a feature does not improve ranking trust, search completion, or public deployment readiness, it likely belongs after v1.
+- Keep the product centered on ranking quality, not discovery social features.
+- Avoid adding filters that undermine the claim that the score is the main differentiator.
+- Prefer explainability over configurability in early versions.

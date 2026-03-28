@@ -2,22 +2,38 @@
 
 ## Stack
 
-Use a minimal Python + Streamlit stack with `requests`, `pandas`, `python-dotenv`, and deployment via Streamlit Cloud. Keep secrets in `st.secrets` or environment variables, and add testing around ranking, pagination, and deduplication before expanding the app surface area.
+Use a lean Python stack centered on Streamlit, `requests`, `pandas`, and isolated scoring/service modules. Secrets should load from `st.secrets` in deployment with environment-variable fallback locally.
 
 ## Table Stakes
 
-The v1 product needs reliable city/category/radius search, paginated Google Places fetching, deduplication, Bayesian ranking, ranked table output, map output, and session caching. The core value is ranking trust, so every feature should reinforce "better than manual Google Maps sorting."
+The essential v1 loop is:
+
+1. city/category/radius input
+2. live Google Places fetch with pagination
+3. deduplication
+4. Bayesian ranking
+5. ranked table plus map
+6. caching to control repeat API cost
+
+## Recommended Build Shape
+
+- Keep `app.py` thin
+- Isolate Google Places access in a client
+- Isolate ranking math in pure functions
+- Use a search service to orchestrate fetch, clean, rank, and return
 
 ## Watch Out For
 
-- Missing pagination will undercut result quality immediately.
-- Weak or opaque ranking logic will make the app feel untrustworthy.
-- Duplicate records will make the output look sloppy.
-- Poor caching will waste API credits.
-- Logic trapped inside `app.py` will slow future ranking enhancements.
+- Naive sorting by raw rating
+- Incomplete pagination
+- Duplicate results
+- Streamlit reruns causing repeated API calls
+- Secrets/config drift between local and Streamlit Cloud
+- Scope creep into accounts, persistence, or advanced filters before ranking quality is validated
 
-## Planning Implications
+## Implications For Requirements And Roadmap
 
-- Build the fetch, transform, and ranking layers before investing in UI polish.
-- Keep the score formula isolated and testable.
-- Defer platform features that do not improve ranking trust or deployment readiness.
+- Early phases should establish project structure, secrets handling, and thin UI boundaries.
+- A dedicated phase should cover API integration, pagination, deduplication, and caching.
+- A dedicated phase should cover ranking logic and score explainability.
+- The roadmap should defer persistence, social features, and advanced filters.

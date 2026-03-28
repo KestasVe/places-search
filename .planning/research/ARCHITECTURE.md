@@ -2,62 +2,60 @@
 
 ## Major Components
 
-### UI Layer
+### Streamlit UI
 
-- Collects city, category, and radius inputs
-- Triggers searches
-- Displays ranked table, map, and user-facing errors/status
-
-### Query Builder
-
-- Converts UI inputs into Google Places request parameters
-- Normalizes search terms and location/radius handling
+Collects city, category, and radius inputs, triggers searches, and renders results. This layer should not contain API-specific pagination logic or scoring formulas.
 
 ### Places Client
 
-- Calls Google Places API
-- Handles pagination, retries, and response normalization
+Responsible for all Google Places requests, pagination handling, request parameter construction, and response normalization. This boundary isolates external API behavior from the rest of the application.
 
-### Transform Layer
+### Search Service
 
-- Flattens API responses into tabular records
-- Deduplicates places
-- Filters incomplete or unusable records
+Coordinates the search flow:
 
-### Ranking Engine
+1. build query inputs
+2. fetch all result pages
+3. normalize and deduplicate places
+4. compute ranking scores
+5. return a result object ready for UI display
 
-- Computes Bayesian weighted score from rating and review count
-- Produces a final ordered result set
-- Keeps scoring logic isolated so future factors can be added without rewriting fetch logic
+### Ranking Module
 
-### Cache Layer
+Pure functions for Bayesian weighted scoring and future ranking factors. This should accept normalized place data and return deterministic score outputs.
 
-- Reuses identical query results for a limited duration/session scope
-- Sits between UI triggers and outbound API calls
+### Data Model
+
+A lightweight place representation should carry the normalized fields used by the UI and ranking logic: place id, name, coordinates, rating, review count, address, query metadata.
 
 ## Data Flow
 
-1. User selects city, category, and radius in Streamlit.
-2. UI sends normalized search inputs to the query/fetch layer.
-3. Cache checks whether an identical search result already exists.
-4. If cache misses, Places client fetches paginated Google results.
-5. Transform layer normalizes and deduplicates place records.
-6. Ranking engine computes Bayesian scores and sorts results.
-7. UI renders the ranked dataframe and map.
+1. User submits city, category, and radius from the Streamlit UI.
+2. UI calls the cached search service function.
+3. Search service asks the Places client for all matching pages.
+4. Places client returns normalized raw places.
+5. Search service deduplicates and validates the result set.
+6. Ranking module computes weighted scores.
+7. Search service sorts and returns ranked places.
+8. UI renders the dataframe and map from the same ranked dataset.
 
-## Build Order Implications
+## Modularity For Future Ranking Factors
 
-1. Define the normalized internal place record shape.
-2. Implement the Places client and pagination behavior.
-3. Implement transform/deduplication helpers.
-4. Implement and test Bayesian ranking logic.
-5. Wire caching around the fetch path.
-6. Build Streamlit UI on top of stable data contracts.
-7. Add error handling and polish last.
+- Keep the score calculation separate from the search orchestration.
+- Represent ranking factors as explicit inputs so price, distance, or open-now logic can be added later without rewriting the UI or API client.
+- Avoid coupling dataframe column names directly to ranking internals.
 
-## Modularity Guidance
+## Suggested Build Order
 
-- Keep API fetching separate from scoring so ranking changes do not touch transport code.
-- Keep transform/deduplication separate from UI so the logic is testable.
-- Treat the score formula as its own module with explicit inputs and outputs.
-- Avoid embedding business logic directly in `app.py`; keep it as orchestration only.
+1. Define normalized place model and ranking function.
+2. Implement Google Places client with pagination and error handling.
+3. Implement search service with deduplication and score computation.
+4. Connect service to Streamlit UI.
+5. Add caching and user-facing error states.
+6. Add tests around ranking and search orchestration.
+
+## Architectural Cautions
+
+- Do not let Streamlit reruns trigger repeated uncached API traffic.
+- Do not bury deduplication or score logic inside UI callbacks.
+- Do not design around a database before live-query behavior is validated.

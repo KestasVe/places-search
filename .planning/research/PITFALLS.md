@@ -1,101 +1,97 @@
 # Pitfalls Research
 
-## Google Places Pagination Assumptions
+## Pitfall 1: Naive Ranking Creates Misleading Results
 
-### Warning Signs
+**Risk**
+Sorting directly by star rating will overvalue places with very few reviews and undermine the product's core claim.
 
-- Searches return suspiciously few places
-- Results stop at the first page
+**Warning signs**
+- Top results have tiny review counts
+- Users question why obvious popular places rank below sparse-review entries
 
-### Prevention
+**Prevention**
+- Implement Bayesian scoring first, before polishing the UI
+- Show review count and score beside rating so the ranking is understandable
 
-- Implement explicit pagination handling and test with mocked multi-page responses
-- Log page counts and total fetched records during development
+**Phase focus**
+- Address in the ranking/domain logic phase
 
-### Phase To Address
+## Pitfall 2: Google Places Pagination And Deduplication Are Incomplete
 
-- Phase 1 or earliest backend/data phase
+**Risk**
+Only using the first page or failing to merge duplicates produces weak and inconsistent rankings.
 
-## Weak Ranking Trust
+**Warning signs**
+- Queries plateau at 20 results unexpectedly
+- Duplicate businesses appear in the ranked output
 
-### Warning Signs
+**Prevention**
+- Build explicit pagination handling into the Places client
+- Deduplicate by stable place identifier before scoring
 
-- Places with one or two reviews frequently rank at the top
-- Users cannot tell why one place outranked another
+**Phase focus**
+- Address in the API integration phase
 
-### Prevention
+## Pitfall 3: Streamlit Reruns Burn API Quota
 
-- Isolate and test the Bayesian score formula
-- Display rating and review count next to the computed rank
-- Optionally include a short score explanation in the UI
+**Risk**
+Reactive reruns can trigger repeated live API calls, increasing cost and making the app feel unstable.
 
-### Phase To Address
+**Warning signs**
+- Repeated identical searches cause noticeable delays
+- API usage rises unexpectedly during simple UI interactions
 
-- Ranking logic phase
+**Prevention**
+- Cache search service results by normalized input tuple
+- Keep API calls behind one cached function boundary
 
-## Duplicate or Messy Results
+**Phase focus**
+- Address in the service/integration phase
 
-### Warning Signs
+## Pitfall 4: Ranking Logic Gets Entangled With UI Code
 
-- Same place appears multiple times in the top results
-- Map and table counts do not match user expectations
+**Risk**
+If scoring lives inside dataframe transformations or Streamlit callbacks, future ranking factors become hard to add and hard to test.
 
-### Prevention
+**Warning signs**
+- Formula edits require UI refactors
+- No isolated unit tests can validate the score
 
-- Define a deterministic deduplication strategy early
-- Use stable identifiers when available and fallback rules when not
-- Add fixture-based tests for duplicate scenarios
+**Prevention**
+- Put scoring in pure functions under a dedicated ranking module
+- Keep `app.py` thin and orchestration-only
 
-### Phase To Address
+**Phase focus**
+- Address in the project structure phase
 
-- Data normalization phase
+## Pitfall 5: Public Deployment Leaks Secrets Or Fails Config Lookup
 
-## API Cost Surprises
+**Risk**
+Hardcoded keys or inconsistent secret-loading logic block safe deployment.
 
-### Warning Signs
+**Warning signs**
+- API key appears in repo files
+- Local execution works but Streamlit Cloud deployment fails
 
-- Re-running the same search repeatedly causes avoidable API usage
-- Development becomes expensive or rate-limited quickly
+**Prevention**
+- Standardize on `st.secrets` plus environment variable fallback
+- Keep `.env` ignored and document the required key name once
 
-### Prevention
+**Phase focus**
+- Address in the project scaffold/deployment phase
 
-- Use `st.cache_data` around the fetch path
-- Keep search input keys stable and explicit
-- Avoid background refreshes in v1
+## Pitfall 6: Scope Expands Before Core Search Quality Is Proven
 
-### Phase To Address
+**Risk**
+Adding filters, accounts, persistence, or country-wide crawling too early delays validation of the main ranking value.
 
-- Fetch/caching phase
+**Warning signs**
+- Roadmap phases are dominated by infrastructure or feature sprawl
+- Ranking logic is still provisional while secondary features multiply
 
-## UI-Coupled Business Logic
+**Prevention**
+- Keep v1 focused on city/category search, ranking, table, and map
+- Treat new ranking factors and persistence as explicit later phases
 
-### Warning Signs
-
-- Ranking rules and fetch logic become embedded inside `app.py`
-- Small logic changes require editing the UI layer directly
-
-### Prevention
-
-- Move API, transform, and ranking logic into separate modules
-- Treat `app.py` as an orchestration layer only
-
-### Phase To Address
-
-- Initial project structure phase
-
-## Secrets Leakage
-
-### Warning Signs
-
-- API key appears in source files, commits, or logs
-- Local setup depends on hardcoded credentials
-
-### Prevention
-
-- Use `st.secrets` and environment variables only
-- Keep `.env` ignored
-- Avoid printing secrets in debugging output
-
-### Phase To Address
-
-- Setup/deployment phase
+**Phase focus**
+- Address in requirements and roadmap scoping
