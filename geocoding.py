@@ -4,8 +4,6 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
-import requests
-
 
 GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json"
 
@@ -26,9 +24,11 @@ def get_google_api_key(explicit_api_key: str | None = None) -> str:
 def geocode_city(
     city_query: str,
     api_key: str | None = None,
-    session: requests.Session | None = None,
+    session: Any = None,
     timeout: int = 15,
 ) -> GeocodingResolution:
+    import requests
+
     resolved_api_key = get_google_api_key(api_key)
     if not resolved_api_key:
         raise ValueError("Missing Google Places API key.")

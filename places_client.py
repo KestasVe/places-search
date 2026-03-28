@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import requests
-
 from geocoding import get_google_api_key
 
 
@@ -17,9 +15,11 @@ def search_text_places(
     radius_m: int,
     api_key: str | None = None,
     page_token: str | None = None,
-    session: requests.Session | None = None,
+    session: Any = None,
     timeout: int = 15,
 ) -> dict[str, Any]:
+    import requests
+
     resolved_api_key = get_google_api_key(api_key)
     if not resolved_api_key:
         raise ValueError("Missing Google Places API key.")
