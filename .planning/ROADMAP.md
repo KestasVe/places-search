@@ -11,8 +11,8 @@
 |---|-------|------|--------------|------------------|
 | 1 | Search Foundation | Capture valid user search inputs and establish the application shell | SRCH-01, SRCH-02, SRCH-03 | 3 |
 | 2 | Places Retrieval Pipeline | Fetch and normalize live Google Places results reliably | RETR-01, RETR-02 | Complete (2/2 plans, 2026-03-28) |
-| 3 | Ranking Engine | Produce trustworthy ordered results from normalized place data | RANK-01, RANK-02 | 3 |
-| 4 | Results Experience | Present ranked results clearly with map, feedback states, and cached repeat searches | VIEW-01, VIEW-02, VIEW-03, PLAT-01 | 4 |
+| 3 | Ranking Engine | Produce trustworthy ordered results from normalized place data | RANK-01, RANK-02 | Complete (1/1 plans, 2026-03-28) |
+| 4 | Results Experience | Present ranked results clearly with map, feedback states, and cached repeat searches | VIEW-01, VIEW-02, VIEW-03, PLAT-01 | Complete (1/1 plans, 2026-03-28) |
 | 5 | Deployment Hardening | Make the app ready for public Streamlit Cloud deployment | PLAT-02 | 3 |
 
 ## Phase Details
@@ -91,7 +91,7 @@
 
 ## Next Step
 
-Run `$gsd-discuss-phase 3` to clarify implementation details for the ranking engine phase.
+Run `$gsd-discuss-phase 5` to clarify deployment and Streamlit Cloud hardening details.
 
 ---
-*Last updated: 2026-03-28 after Phase 2 plan completion*
+*Last updated: 2026-03-28 after Phase 4 completion*

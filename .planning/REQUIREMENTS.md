@@ -18,18 +18,18 @@
 
 ### Ranking
 
-- [ ] **RANK-01**: User sees places ranked by a Bayesian weighted score based on Google rating and review count.
-- [ ] **RANK-02**: User can inspect each ranked place's rating and review count alongside its final order so the ranking is understandable.
+- [x] **RANK-01**: User sees places ranked by a Bayesian weighted score based on Google rating and review count.
+- [x] **RANK-02**: User can inspect each ranked place's rating and review count alongside its final order so the ranking is understandable.
 
 ### Results
 
-- [ ] **VIEW-01**: User can view the ranked results in a sortable table/dataframe.
-- [ ] **VIEW-02**: User can view the ranked results on a map.
-- [ ] **VIEW-03**: User receives clear feedback when a search is loading, returns no results, or fails due to an API/configuration issue.
+- [x] **VIEW-01**: User can view the ranked results in a sortable table/dataframe.
+- [x] **VIEW-02**: User can view the ranked results on a map.
+- [x] **VIEW-03**: User receives clear feedback when a search is loading, returns no results, or fails due to an API/configuration issue.
 
 ### Platform
 
-- [ ] **PLAT-01**: Repeating the same search within a session reuses cached data to reduce unnecessary API calls and improve perceived responsiveness.
+- [x] **PLAT-01**: Repeating the same search within a session reuses cached data to reduce unnecessary API calls and improve perceived responsiveness.
 - [ ] **PLAT-02**: The application can be deployed publicly on Streamlit Cloud with the Google Places API key loaded from secrets or environment variables.
 
 ## v2 Requirements
@@ -69,12 +69,12 @@
 | SRCH-03 | Phase 1 | Complete |
 | RETR-01 | Phase 2 | Complete |
 | RETR-02 | Phase 2 | Complete |
-| RANK-01 | Phase 3 | Pending |
-| RANK-02 | Phase 3 | Pending |
-| VIEW-01 | Phase 4 | Pending |
-| VIEW-02 | Phase 4 | Pending |
-| VIEW-03 | Phase 4 | Pending |
-| PLAT-01 | Phase 4 | Pending |
+| RANK-01 | Phase 3 | Complete |
+| RANK-02 | Phase 3 | Complete |
+| VIEW-01 | Phase 4 | Complete |
+| VIEW-02 | Phase 4 | Complete |
+| VIEW-03 | Phase 4 | Complete |
+| PLAT-01 | Phase 4 | Complete |
 | PLAT-02 | Phase 5 | Pending |
 
 **Coverage:**
@@ -84,4 +84,4 @@
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after initial definition*
+*Last updated: 2026-03-28 after Phase 4 completion*
