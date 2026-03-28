@@ -36,6 +36,7 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
+| 03 | 01 | 10 min | 4 | 3 |
 | 02 | 02 | 10 min | 3 | 5 |
 | 04 | 01 | 20 min | 4 | 4 |
 
@@ -54,7 +55,7 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 - Project is greenfield and intended for Streamlit Cloud deployment.
 - Phase 1 is complete and verified with no gaps.
 - Phase 2 is complete and verified with no gaps.
-- Phase 3 implementation is complete and covered by tests, though its discussion/planning artifacts were not backfilled in this pass.
+- Phase 3 is complete and its workflow artifacts are now backfilled.
 - Phase 4 is complete and verified with no gaps.
 
 ---
