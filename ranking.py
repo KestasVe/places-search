@@ -6,6 +6,7 @@ from typing import Any
 from retrieval_models import NormalizedPlace
 
 
+# Ranking constants
 GLOBAL_MEAN_RATING = 4.2
 MIN_REVIEWS_THRESHOLD = 50
 

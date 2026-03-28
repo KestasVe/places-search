@@ -30,7 +30,7 @@
 ### Platform
 
 - [x] **PLAT-01**: Repeating the same search within a session reuses cached data to reduce unnecessary API calls and improve perceived responsiveness.
-- [ ] **PLAT-02**: The application can be deployed publicly on Streamlit Cloud with the Google Places API key loaded from secrets or environment variables.
+- [x] **PLAT-02**: The application can be deployed publicly on Streamlit Cloud with the Google Places API key loaded from secrets or environment variables.
 
 ## v2 Requirements
 
@@ -75,7 +75,7 @@
 | VIEW-02 | Phase 4 | Complete |
 | VIEW-03 | Phase 4 | Complete |
 | PLAT-01 | Phase 4 | Complete |
-| PLAT-02 | Phase 5 | Pending |
+| PLAT-02 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 12 total
@@ -84,4 +84,4 @@
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after Phase 4 completion*
+*Last updated: 2026-03-28 after Phase 5 completion*

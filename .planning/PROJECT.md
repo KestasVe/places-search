@@ -21,11 +21,12 @@ Turn messy Google Maps browsing into a reliable ranked list where highly rated p
 - [x] App displays ranked results as a sortable table/dataframe - Phase 4
 - [x] App displays the top ranked results on a map - Phase 4
 - [x] App caches repeated searches within a session to reduce redundant API calls and cost - Phase 4
+- [x] App is structured for public deployment on Streamlit Cloud - Phase 5
+- [x] API credentials are loaded from `st.secrets` or environment variables rather than hardcoded - Phase 5
 
 ### Active
 
-- [ ] App is structured for public deployment on Streamlit Cloud.
-- [ ] API credentials are loaded from `st.secrets` or environment variables rather than hardcoded.
+None.
 
 ### Out of Scope
 
@@ -49,7 +50,7 @@ Turn messy Google Maps browsing into a reliable ranked list where highly rated p
 - The application is expected to work across arbitrary city/category combinations as long as Google Places returns results.
 - Streamlit is the intended framework, with a Folium-based map view now used for richer ranked-place inspection.
 - Deployment target is Streamlit Cloud, which implies clean dependency management, ignored local secrets, and environment-based API configuration.
-- Current state: Phase 4 is complete. The app now supports query capture, live retrieval, Bayesian ranking, a formatted results table, map plotting, runtime feedback states, and cached repeat searches.
+- Current state: Phase 5 is complete. The app now supports query capture, live retrieval, Bayesian ranking, a formatted results table, map plotting, runtime feedback states, cached repeat searches, and deployment-ready startup/config handling.
 
 ## Constraints
 
@@ -72,6 +73,7 @@ Turn messy Google Maps browsing into a reliable ranked list where highly rated p
 | Use geocode-first retrieval with category-only places search | Keeps the radius constraint meaningful while preserving a clean retrieval boundary | Good |
 | Use a split results layout with a Top 20 table and interactive map | Keeps ranking legible while giving spatial context without overwhelming the page | Good |
 | Prepare the repo for Streamlit Cloud deployment from the start | Prevents rework around secrets and packaging later | Good |
+| Fail fast when API configuration is missing | Prevents broken public deploys from presenting a dead search form | Good |
 
 ## Evolution
 
@@ -91,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-28 after Phase 4 completion*
+*Last updated: 2026-03-28 after Phase 5 completion*

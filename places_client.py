@@ -36,4 +36,12 @@ def search_text_places(
     http = session or requests.Session()
     response = http.get(PLACES_TEXT_SEARCH_API_URL, params=params, timeout=timeout)
     response.raise_for_status()
-    return response.json()
+    payload = response.json()
+
+    status = str(payload.get("status") or "")
+    error_message = str(payload.get("error_message") or "").strip()
+    if status not in {"OK", "ZERO_RESULTS"}:
+        detail = f" {error_message}" if error_message else ""
+        raise RuntimeError(f"Google Places request failed with status '{status}'.{detail}")
+
+    return payload

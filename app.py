@@ -20,6 +20,7 @@ load_dotenv()
 
 PAGE_TITLE = "Lithuania Places Ranker"
 PAGE_CAPTION = "Find and rank the best places in Lithuania with Google Places data."
+GOOGLE_API_KEY_NAME = "GOOGLE_PLACES_API_KEY"
 CITY_HELP = "Lithuanian and English city names are both acceptable."
 CATEGORY_PLACEHOLDER = "Kebabai, Museums, Cafes"
 SEARCH_CTA_LABEL = "Search places"
@@ -32,9 +33,9 @@ CATEGORY_TOUCHED_KEY = "category_touched"
 
 
 def get_google_places_api_key() -> str:
-    if "GOOGLE_PLACES_API_KEY" in st.secrets:
-        return st.secrets["GOOGLE_PLACES_API_KEY"]
-    return os.getenv("GOOGLE_PLACES_API_KEY", "")
+    if GOOGLE_API_KEY_NAME in st.secrets:
+        return st.secrets[GOOGLE_API_KEY_NAME]
+    return os.getenv(GOOGLE_API_KEY_NAME, "")
 
 
 def mark_city_touched() -> None:
@@ -189,9 +190,13 @@ st.title(PAGE_TITLE)
 st.caption(PAGE_CAPTION)
 
 if not api_key:
-    st.warning(
-        "Set `GOOGLE_PLACES_API_KEY` in Streamlit secrets or environment variables before running live searches."
+    st.error(
+        "Missing Google Places API key. Configure `GOOGLE_PLACES_API_KEY` in Streamlit secrets or a local `.env` file."
     )
+    st.info(
+        "For Streamlit Cloud, add the key in app secrets. For local development, set it in `.env` before launching the app."
+    )
+    st.stop()
 
 st.markdown(
     """
@@ -246,15 +251,10 @@ if search_clicked:
     else:
         search_query = build_search_query(city, category, radius_km)
         st.session_state[QUERY_STATE_KEY] = search_query
-        if not api_key:
-            st.session_state[RETRIEVAL_STATE_KEY] = None
-            st.session_state[RANKING_STATE_KEY] = None
-            st.error("A Google Places API key is required before searches can run.")
-        else:
-            with st.spinner("Fetching Google Places results and ranking them..."):
-                retrieval_result, ranking_result = run_search_pipeline(search_query, api_key)
-            st.session_state[RETRIEVAL_STATE_KEY] = retrieval_result
-            st.session_state[RANKING_STATE_KEY] = ranking_result
+        with st.spinner("Fetching Google Places results and ranking them..."):
+            retrieval_result, ranking_result = run_search_pipeline(search_query, api_key)
+        st.session_state[RETRIEVAL_STATE_KEY] = retrieval_result
+        st.session_state[RANKING_STATE_KEY] = ranking_result
 
 if QUERY_STATE_KEY in st.session_state:
     search_query = st.session_state[QUERY_STATE_KEY]

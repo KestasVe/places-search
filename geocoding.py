@@ -42,6 +42,12 @@ def geocode_city(
     response.raise_for_status()
 
     payload = response.json()
+    status = str(payload.get("status") or "")
+    error_message = str(payload.get("error_message") or "").strip()
+    if status not in {"OK", "ZERO_RESULTS"}:
+        detail = f" {error_message}" if error_message else ""
+        raise RuntimeError(f"Google geocoding request failed with status '{status}'.{detail}")
+
     results = payload.get("results") or []
     if not results:
         raise LookupError(f"Location not found for '{city_query}'.")
