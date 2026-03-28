@@ -7,9 +7,9 @@
 
 ### Search
 
-- [ ] **SRCH-01**: User can select a Lithuanian city before running a search.
-- [ ] **SRCH-02**: User can enter a freeform place category or query term such as `Kebabai`, `Muzejai`, or `Kavines`.
-- [ ] **SRCH-03**: User can choose a search radius in kilometers.
+- [x] **SRCH-01**: User can select a Lithuanian city before running a search.
+- [x] **SRCH-02**: User can enter a freeform place category or query term such as `Kebabai`, `Muzejai`, or `Kavines`.
+- [x] **SRCH-03**: User can choose a search radius in kilometers.
 
 ### Retrieval
 
@@ -64,9 +64,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SRCH-01 | Phase 1 | Pending |
-| SRCH-02 | Phase 1 | Pending |
-| SRCH-03 | Phase 1 | Pending |
+| SRCH-01 | Phase 1 | Complete |
+| SRCH-02 | Phase 1 | Complete |
+| SRCH-03 | Phase 1 | Complete |
 | RETR-01 | Phase 2 | Pending |
 | RETR-02 | Phase 2 | Pending |
 | RANK-01 | Phase 3 | Pending |
