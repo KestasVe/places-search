@@ -13,8 +13,8 @@
 
 ### Retrieval
 
-- [ ] **RETR-01**: User can run a live Google Places search and receive results beyond the first page when additional results exist.
-- [ ] **RETR-02**: User sees each place only once in the ranked results even when the API returns duplicates or overlapping entries.
+- [x] **RETR-01**: User can run a live Google Places search and receive results beyond the first page when additional results exist.
+- [x] **RETR-02**: User sees each place only once in the ranked results even when the API returns duplicates or overlapping entries.
 
 ### Ranking
 
@@ -67,8 +67,8 @@
 | SRCH-01 | Phase 1 | Complete |
 | SRCH-02 | Phase 1 | Complete |
 | SRCH-03 | Phase 1 | Complete |
-| RETR-01 | Phase 2 | Pending |
-| RETR-02 | Phase 2 | Pending |
+| RETR-01 | Phase 2 | Complete |
+| RETR-02 | Phase 2 | Complete |
 | RANK-01 | Phase 3 | Pending |
 | RANK-02 | Phase 3 | Pending |
 | VIEW-01 | Phase 4 | Pending |
