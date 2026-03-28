@@ -44,7 +44,7 @@ def test_search_text_places_raises_friendly_runtime_error_for_google_status_fail
     session = _FakeSession({"error": {"status": "RESOURCE_EXHAUSTED", "message": "Quota exceeded"}})
 
     try:
-        search_text_places("Kebabai", 54.6872, 25.2797, 10000, api_key="test-key", session=session)
+        search_text_places("Kebabai", "Vilnius", 54.6872, 25.2797, 10000, api_key="test-key", session=session)
     except RuntimeError as exc:
         assert "RESOURCE_EXHAUSTED" in str(exc)
         assert "Quota exceeded" in str(exc)
@@ -73,10 +73,10 @@ def test_search_text_places_uses_text_search_with_location_bias_and_keyword_quer
         }
     )
 
-    payload = search_text_places("Express Pizza", 54.6872, 25.2797, 3000, api_key="test-key", session=session)
+    payload = search_text_places("Express Pizza", "Vilnius", 54.6872, 25.2797, 3000, api_key="test-key", session=session)
 
     assert session.last_post_kwargs is not None
-    assert session.last_post_kwargs["json"]["textQuery"] == "Express Pizza"
+    assert session.last_post_kwargs["json"]["textQuery"] == "Express Pizza near Vilnius"
     assert "locationBias" in session.last_post_kwargs["json"]
     assert "locationRestriction" not in session.last_post_kwargs["json"]
     assert "type" not in session.last_post_kwargs["json"]

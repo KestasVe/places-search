@@ -19,7 +19,7 @@ MAX_PLACES_PAGES = 3
 
 
 GeocodeFn = Callable[[str, str | None], GeocodingResolution]
-PlacesSearchFn = Callable[[str, float, float, int, str | None, str | None], dict[str, Any]]
+PlacesSearchFn = Callable[[str, str, float, float, int, str | None, str | None], dict[str, Any]]
 
 
 def build_query_context(search_query: SearchQuery) -> dict[str, Any]:
@@ -75,6 +75,7 @@ def retrieve_places(
         try:
             payload = places_search_fn(
                 search_query.category_raw,
+                resolution.formatted_address,
                 resolution.lat,
                 resolution.lng,
                 search_query.radius_m,

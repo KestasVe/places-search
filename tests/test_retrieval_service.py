@@ -59,6 +59,7 @@ def test_retrieve_places_stops_after_three_pages_even_if_more_tokens_exist() -> 
 
     def fake_search(
         category_query: str,
+        user_location_name: str,
         center_lat: float,
         center_lng: float,
         radius_m: int,
@@ -82,6 +83,7 @@ def test_retrieve_places_returns_partial_results_with_warning_on_later_page_fail
 
     def fake_search(
         category_query: str,
+        user_location_name: str,
         center_lat: float,
         center_lng: float,
         radius_m: int,
@@ -105,6 +107,7 @@ def test_retrieve_places_returns_empty_success_result_with_metadata() -> None:
 
     def fake_search(
         category_query: str,
+        user_location_name: str,
         center_lat: float,
         center_lng: float,
         radius_m: int,
@@ -136,6 +139,7 @@ def test_retrieve_places_collapses_duplicate_place_ids_across_pages() -> None:
 
     def fake_search(
         category_query: str,
+        user_location_name: str,
         center_lat: float,
         center_lng: float,
         radius_m: int,

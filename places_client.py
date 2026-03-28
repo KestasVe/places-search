@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from geocoding import get_google_api_key
@@ -66,6 +67,7 @@ def _normalize_text_search_place(place: dict[str, Any]) -> dict[str, Any]:
 
 def search_text_places(
     category_query: str,
+    user_location_name: str,
     center_lat: float,
     center_lng: float,
     radius_m: int,
@@ -86,7 +88,7 @@ def search_text_places(
         "X-Goog-FieldMask": TEXT_SEARCH_FIELD_MASK,
     }
     payload: dict[str, Any] = {
-        "textQuery": category_query,
+        "textQuery": f"{category_query} near {user_location_name}",
         "locationBias": {
             "circle": {
                 "center": {
@@ -98,6 +100,7 @@ def search_text_places(
         },
     }
     if page_token:
+        time.sleep(2)
         payload["pageToken"] = page_token
 
     http = session or requests.Session()

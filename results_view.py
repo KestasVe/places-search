@@ -47,7 +47,7 @@ def _build_table_row(place: RankedPlace) -> dict[str, object]:
         "Score": _format_score(place.score),
         "Rating": _format_rating(place.rating),
         "Reviews": place.user_ratings_total if place.user_ratings_total is not None else "-",
-        "Distance": format_distance_km(place.distance_m),
+        "Distance (km)": format_distance_km(place.distance_m),
         "Address": place.formatted_address,
         "Price": format_price_level(place.price_level),
         "Open Now": format_open_now(place.opening_hours),

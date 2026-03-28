@@ -68,13 +68,13 @@ def test_build_ranked_results_frame_limits_to_top_20_ranked_rows() -> None:
         "Score",
         "Rating",
         "Reviews",
-        "Distance",
+        "Distance (km)",
         "Address",
         "Price",
         "Open Now",
     ]
     assert frame.iloc[0]["Rank"] == 1
-    assert frame.iloc[0]["Distance"] == "0.85 km"
+    assert frame.iloc[0]["Distance (km)"] == "0.85 km"
     assert frame.iloc[-1]["Rank"] == TOP_RANKED_LIMIT
 
 

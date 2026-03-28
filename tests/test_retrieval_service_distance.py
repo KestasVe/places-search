@@ -29,6 +29,7 @@ def test_retrieve_places_filters_out_results_beyond_requested_radius() -> None:
 
     def fake_search(
         category_query: str,
+        user_location_name: str,
         center_lat: float,
         center_lng: float,
         radius_m: int,
