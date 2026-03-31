@@ -201,8 +201,8 @@ st.markdown(
 
     .block-container {
         max-width: 1180px;
-        padding-top: 2rem;
-        padding-bottom: 6rem;
+        padding-top: 3rem;
+        padding-bottom: 5rem;
     }
 
     .title-shell {
@@ -306,8 +306,12 @@ st.markdown(
         background: rgba(11, 17, 25, 0.92) !important;
         color: var(--text) !important;
         border: 1px solid var(--surface-border-strong) !important;
-        border-radius: 16px !important;
+        border-radius: 8px !important;
         box-shadow: var(--glow);
+    }
+
+    [data-testid="stTextInputRootElement"] input:focus-visible {
+        outline: none;
     }
 
     [data-testid="stTextInputRootElement"] input::placeholder {
