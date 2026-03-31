@@ -18,11 +18,11 @@ except ImportError:  # pragma: no cover - runtime fallback for local environment
 
 load_dotenv()
 
-PAGE_TITLE = "Lithuania Places Ranker"
-PAGE_CAPTION = "Find and rank the best places in Lithuania with Google Places data."
+PAGE_TITLE = "Places Ranker"
+PAGE_CAPTION = "Find and rank the best places with Google Places data."
 GOOGLE_API_KEY_NAME = "GOOGLE_PLACES_API_KEY"
 CITY_HELP = "Lithuanian and English city names are both acceptable."
-CATEGORY_PLACEHOLDER = "Kebabai, Museums, Cafes"
+CATEGORY_PLACEHOLDER = "Museums, Cafes"
 SEARCH_CTA_LABEL = "Search places"
 RESULTS_LIMIT = 20
 QUERY_STATE_KEY = "search_query"
